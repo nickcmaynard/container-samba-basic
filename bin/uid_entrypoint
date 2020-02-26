@@ -4,4 +4,5 @@ if ! whoami &> /dev/null; then
     echo "${USER_NAME:-default}:x:$(id -u):0:${USER_NAME:-default} user:${HOME}:/sbin/nologin" >> /etc/passwd
   fi
 fi
+sed -i "s/__USER_NAME__/${USER_NAME:-`id -u`}/g" ${APP_ROOT}/smb.conf 
 exec "$@"
