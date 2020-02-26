@@ -1,4 +1,4 @@
 #!/bin/sh
 id
 whoami
-/usr/sbin/smbd -F --no-process-group -S -s ${APP_ROOT}/smb.conf -l /tmp/samba/log
+/usr/sbin/smbd -F --no-process-group -S -s ${APP_ROOT}/smb.conf -l ${APP_ROOT}/log
