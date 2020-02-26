@@ -8,6 +8,8 @@ ENV APP_ROOT=/opt/app-root
 ENV PATH=${APP_ROOT}/bin:${PATH} HOME=${APP_ROOT}
 COPY bin/ ${APP_ROOT}/bin/
 COPY smb.conf ${APP_ROOT}/smb.conf
+RUN mkdir ${APP_ROOT}/log
+
 RUN chmod -R u+x ${APP_ROOT}/bin && \
     chgrp -R 0 ${APP_ROOT} && \
     chmod -R g=u ${APP_ROOT} /etc/passwd
@@ -15,7 +17,6 @@ RUN chmod -R u+x ${APP_ROOT}/bin && \
 RUN mkdir /tmp/samba
 RUN chgrp -R 0 /tmp/samba && \
     chmod -R g=u /tmp/samba
-
 
 EXPOSE 1445
 VOLUME [/data]
