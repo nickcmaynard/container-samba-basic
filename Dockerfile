@@ -1,5 +1,5 @@
 # FROM registry.redhat.io/ubi8/ubi
-FROM centos:7
+FROM centos:8
 
 # RUN yum -y --enablerepo=rhel-8-for-x86_64-baseos-rpms install samba && yum -y clean all
 RUN yum -y install samba && yum -y clean all
