@@ -12,7 +12,7 @@ RUN mkdir ${APP_ROOT}/log
 
 RUN chmod -R u+x ${APP_ROOT}/bin && \
     chgrp -R 0 ${APP_ROOT} && \
-    chmod -R g=u ${APP_ROOT} /etc/passwd
+    chmod -R g=u ${APP_ROOT} /etc/passwd /var/lib/samba
 
 RUN mkdir /tmp/samba
 RUN chgrp -R 0 /tmp/samba && \
