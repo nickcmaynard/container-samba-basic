@@ -1,0 +1,100 @@
+kind: Template
+apiVersion: v1
+metadata:
+  name: samba-poc-template
+labels:
+  application: samba
+objects:
+  - apiVersion: image.openshift.io/v1
+    kind: ImageStream
+    metadata:
+      name: samba
+    spec:
+      lookupPolicy:
+        local: false
+  - kind: PersistentVolumeClaim
+    apiVersion: v1
+    metadata:
+      name: samba-pvc
+    spec:
+      accessModes:
+        - ReadWriteMany
+      resources:
+        requests:
+          storage: 1Gi
+      volumeMode: Filesystem
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: samba-nodeport
+    spec:
+      type: NodePort
+      ports:
+        - port: 1445
+          nodePort: 30500
+          name: samba-external
+      selector:
+        app: samba
+  - kind: BuildConfig
+    apiVersion: build.openshift.io/v1
+    metadata:
+      name: samba
+    spec:
+      output:
+        to:
+          kind: ImageStreamTag
+          name: 'samba:latest'
+      successfulBuildsHistoryLimit: 5
+      failedBuildsHistoryLimit: 5
+      strategy:
+        type: Docker
+        dockerStrategy:
+          dockerfilePath: Dockerfile
+      source:
+        type: Git
+        git:
+          uri: 'https://github.com/nickcmaynard/container-samba-basic.git'
+        contextDir: /
+      triggers:
+        - type: Generic
+          generic:
+            secretReference:
+              name: samba-generic-webhook-secret
+        - type: ConfigChange
+  - kind: DeploymentConfig
+    apiVersion: apps.openshift.io/v1
+    metadata:
+      name: samba
+    spec:
+      strategy:
+        type: Rolling
+      triggers:
+        - type: ConfigChange
+        - type: ImageChange
+          imageChangeParams:
+            automatic: true
+            containerNames:
+              - samba
+            from:
+              kind: ImageStreamTag
+              name: 'samba:latest'
+      replicas: 1
+      template:
+        metadata:
+          labels:
+            app: samba
+            deploymentconfig: samba
+        spec:
+          volumes:
+            - name: pvol
+              persistentVolumeClaim:
+                claimName: samba-pvc
+          containers:
+            - name: samba
+              image: 'samba:latest'
+              volumeMounts:
+                - name: pvol
+                  mountPath: /data
+              imagePullPolicy: Always
+          restartPolicy: Always
+          revisionHistoryLimit: 10
